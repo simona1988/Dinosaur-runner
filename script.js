@@ -1,8 +1,16 @@
+const JUMP_MAX_HEIGHT = 150;
+const START_POSITION = 10;
+const FALL_SPEED = 6;
+const MOVEMENT_INTERVAL = 20;
+const OBSTACLE_SPEED = 5;
+const MIN_OBSTACLE_RESPAWN = 1000;
+const MAX_OBSTACLE_RESPAWN = 3000;
+const OBSTACLE_REMOVE_POSITION = -20;
+
 const gameContainer = document.getElementById('game-container');
 const dino = document.getElementById('dino');
 const gameOverMessage = document.getElementById('game-over-message');
 let isJumping = false;
-const fallSpeed = 6;
 let gameRunning = true; 
 
 document.addEventListener('keydown', (e) => {
@@ -12,24 +20,24 @@ document.addEventListener('keydown', (e) => {
 });
 
 function jump() {
-  let position = 10; 
+  let position = START_POSITION; 
   isJumping = true;
   const upInterval = setInterval(() => {
-    if (position >= 150) {
+    if (position >= JUMP_MAX_HEIGHT) {
       clearInterval(upInterval);
       const downInterval = setInterval(() => {
-        if (position <= 10) {
+        if (position <= START_POSITION) {
           clearInterval(downInterval);
           isJumping = false;
         }
-        position -= fallSpeed;
+        position -= FALL_SPEED;
         dino.style.bottom = `${position}px`;
-      }, 20);
+      }, MOVEMENT_INTERVAL);
     } else {
-      position += fallSpeed;
+      position += FALL_SPEED;
       dino.style.bottom = `${position}px`;
     }
-  }, 20);
+  }, MOVEMENT_INTERVAL);
 }
 
 function createObstacle() {
@@ -50,7 +58,7 @@ function moveObstacle(obstacle, obstaclePosition) {
       clearInterval(moveInterval); 
       return;
     }
-    if (obstaclePosition < -20) {
+    if (obstaclePosition < - OBSTACLE_REMOVE_POSITION) {
       clearInterval(moveInterval);
       gameContainer.removeChild(obstacle);
     } else {
@@ -59,10 +67,10 @@ function moveObstacle(obstacle, obstaclePosition) {
         clearInterval(moveInterval);
       }
     }
-    obstaclePosition -= 5;
+    obstaclePosition -= OBSTACLE_SPEED;
     obstacle.style.left = `${obstaclePosition}px`;
-  }, 20);
-  setTimeout(createObstacle, Math.random() * 2000 + 1000);
+  }, MOVEMENT_INTERVAL);
+  setTimeout(createObstacle, Math.random() * (MAX_OBSTACLE_RESPAWN - MIN_OBSTACLE_RESPAWN) + MIN_OBSTACLE_RESPAWN);
 }
 
 function checkCollision(obstacle, dino) {
